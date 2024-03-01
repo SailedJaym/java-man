@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textgenerierung mit KI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/text-embedding"></script>
+</head>
+<body>
+    <h1>Textgenerierung mit KI</h1>
+    <textarea id="inputText" rows="5" cols="50" placeholder="Gib einen Anfangstext ein..."></textarea><br>
+    <button onclick="generiereText()">Generiere Text</button><br>
+    <p id="outputText"></p>
+
+    <script>
+        async function generiereText() {
+            const inputText = document.getElementById('inputText').value;
+            const model = await text_embedding.loadWord2VecModel();
+            
+            // Vektorisierung des Eingabetextes
+            const inputTextVectors = inputText.split(' ').map(word => {
+                const vector = model.getWordVectors(word.toLowerCase());
+                return vector;
+            });
+
+            // Verwendung des Modells, um den nächsten Text zu generieren
+            const outputVectors = inputTextVectors.map(vector => {
+                const outputVector = model.predict(vector);
+                return outputVector;
+            });
+
+            // Rückumwandlung der Vektoren in Text
+            const outputText = outputVectors.map(vector => {
+                const word = model.getVectorsAsWords(vector);
+                return word;
+            }).join(' ');
+
+            document.getElementById('outputText').innerText = outputText;
+        }
+    </script>
+</body>
+</html>
